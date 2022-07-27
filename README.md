@@ -385,3 +385,100 @@ module.exports = {
 hot loading stylesheets can be done  
 by importing css into a module:  
 `import "./style.css"`
+
+---
+
+# Tree Shaking
+means eliminate dead code
+
+[link](https://webpack.js.org/guides/tree-shaking/)
+
+`math.js`:
+```js
+export function square() {...}
+export function cube() {...}
+```
+
+`index.js`:
+```js
+import { cube } from "./math"
+```
+
+`square` is unused and is condidered as dead code  
+(`/* unused harmony export square */`)
+
+
+
+```js
+optimization: {
+   usedExports: true,
+   ...
+}
+```
+
+## Mark File as Side-Effect-Free
+Side effect means code that performs a special behavior when imported,  
+other than exposing one or more exports.
+
+Example is polyfills, which affect the global scope,  
+and usually do not provide exports
+
+in `package.json`:
+```json
+{
+  "name": "your-project",
+
+  // means no side effects
+  // and webpack can tree shaking
+  // unused exports
+  "sideEffects": false
+}
+```
+
+If code has side-effects.  
+```json
+{
+  "name": "your-project",
+
+  // array of glob patterns to relevant files
+  // any imported file is subject to tree shaking
+  "sideEffects": [ "./src/some-side-effectful-file.js", "*.css" ]
+}
+```
+
+Also side effects can be configured through `module.rules` option
+
+## Tree Shaking vs `sideEffects`
+`usedExports` = tree shaking
+
+`sideEffect` is more efficient since it allows to skip whole files
+
+> No direct export is used, but flagged with sideEffects -> include it
+> No export is used, not flagged with sideEffects -> exclude it
+> Direct export is used, not flagged with sideEffects -> include it
+
+## Mark Function as Side-Effect-Free
+to mark function that call is side-effect-free (pure)  
+use `/*#__PURE__*/` annotation  
+in front of function call
+
+`/*#__PURE__*/ double(55);`
+
+Arguments passed to functin should be marked individually.
+> When the initial value in a variable declaration of an unused variable is considered as side-effect-free (pure),  
+> it is getting marked as dead code, not executed and dropped by the minimizer.  
+> This behavior is enabled when `optimization.innerGraph` is set to `true`.
+
+`--optimize-minimize` flag enables `TerserPlugin`
+
+Tree shaking is done with `ModuleConcatenationPlugin`  
+which enabled in `mode: "production"`  
+To enable tree shaking in development mode  
+add `ModuleConcatenationPlugin`
+
+## Conclusion
+To take advantage from tree shaking
+- use ES6 module syntax `import` and `export`
+- dont't let compilers transfrom ESM syntax to CommonJS ( i.e. babel [link](https://babeljs.io/docs/en/babel-preset-env#modules))
+- add `sideEffects` property to `package.json`
+- use production mode to utilize minification and tree shaking
