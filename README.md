@@ -250,3 +250,30 @@ externals: [
 
 To expose css associated with library,  
 use `MiniCssExtractPlugin`
+
+---
+
+# Environment Variables
+
+`--env` - command line environmane option
+
+`npx webpack --env goal=local --env production --progress`
+
+`--env production` == `env.production == true`
+
+to use environment variables  
+modify `module.exports` to function that accepts `env`:
+
+```js
+module.exports = env => { 
+    // use env.YOUR_VARIABLE
+    console.log( env.goal ) // local
+    console.log( env.production ) // true
+
+    // and return webpack config
+    return {
+        entry: ...
+        ...
+    }
+ }
+```
