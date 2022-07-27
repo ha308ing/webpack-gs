@@ -327,3 +327,61 @@ module.exports = env => {
 
 ## Sass
 `node-sass` has a bug which blocks threads from the Node.js thread pool. When using it with the `thread-loader` set `workerParallelJobs: 2`.
+
+---
+
+# Hot Module Replacement
+is meant for development mode  
+is enabled by default for `webpack-dev-server` from v4.0.0
+
+for `webpack-dev-middleware` alternative use `webpack-hot-middleware`
+
+```js
+...
+devServer: {
+    static: "./dist",
+    hot: true
+}
+...
+```
+
+## Manual Entry Point for HMR ?
+```js
+const path = require( "path" )
+const webpack = require( "webpack" )
+
+module.exports = {
+    entry: {
+        app: "./src/index.js",
+        
+        // Runtime code for HMR
+        hot: "webpack/hot/dev-server.js",
+
+        // Dev server client for web socket transport, hot and live reload logic
+        client: "webpack-dev-server/client/index.js?hot=true&live-reload=true"
+    },
+    devtool: "inline-source-map",
+    devServer: {
+        static: "./dist",
+
+        // Dev server client for web socket transport, hot and live reload logic
+        hot: false,
+        client: false
+    },
+    plugins: [
+        new HtmlWebpackPlugin( { title: "HMR" } ),
+        new webpack.HotModuleReplacementPlugin()
+    ],
+    output: {
+        filename: "[name].bundle.js",
+        path: path.resolve( __dirname, "dist" ),
+        clean: true
+    }
+}
+```
+
+## HMR with Stylesheets
+`style-loader` uses `module.hot.accept` and because of that  
+hot loading stylesheets can be done  
+by importing css into a module:  
+`import "./style.css"`
