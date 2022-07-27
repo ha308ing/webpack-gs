@@ -277,3 +277,53 @@ module.exports = env => {
     }
  }
 ```
+
+---
+
+# Build Performance
+
+[link](https://webpack.js.org/guides/build-performance/)
+
+1. Keep updated
+2. Apply loaders to certain files by specifying path with `include` option:
+    ```js
+    module.exports = {
+        module: {
+            rules: [
+                {
+                    test: /\.js$/,
+                    include: path.resolve( __dirname, "src" ),
+                    loader: "babel-loader"
+                }
+            ]
+        }
+        ...
+    }
+    ```
+3. Use limited number of loaders/toolss
+4. Resolving
+    1. Minimize number of items in
+        - `resolve.modules`
+        - `resolve.extensions`
+        - `resolve.mainFiles`
+        - `resolve.descriptionFiles`
+    2. Set `resolve.symlinks: false` if you don't use symliks (`npm link`, `yarn link`)
+    3. Set `resolve.cacheWithContext: false` if external resolving plugins are used which are not context specific
+5. User `DLLPlugin` to compile separately files that rarely changed.  
+    Improve compilation speed, but increase build complexity
+6. Avoid production specific tooling.  
+    Exclude from development mode:
+    - `TerserPlugin`
+    - `[fullhash]/[chunkhash]/[contenthash]`
+    - `AggressiveSplittingPlugin`
+    - `AggressiveMergingPlugin`
+    - `ModuleConcatenationPlugin`
+
+
+## TypeScript
+- Use the `fork-ts-checker-webpack-plugin` for typechecking in a separate process.
+- Configure loaders to skip typechecking.
+- Use the `ts-loader` in `happyPackMode: true` / `transpileOnly: true`.
+
+## Sass
+`node-sass` has a bug which blocks threads from the Node.js thread pool. When using it with the `thread-loader` set `workerParallelJobs: 2`.
