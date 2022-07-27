@@ -184,3 +184,69 @@ optimization: {
 }
 ...
 ```
+
+---
+
+# Authoring Libraries
+
+To expose exports from entry point,  
+use `output.library`
+
+```js
+...
+output: {
+    path: ...
+    filename: ...
+
+    // exposed only through script tag
+    library: <exposedName>
+
+    // to expose in compatibility with other environments
+    // add type: "umd"
+    library: {
+        name: <exposedName>,
+        type: "umd"
+    }
+```
+
+Using array as entry point for a library is not recommended.  
+add an index script that serves as a single entry point [link](https://stackoverflow.com/questions/34072598/es6-exporting-importing-in-index-file)
+
+
+## Externalize 3rd-party Library
+
+To exclude 3rd-party library from bundle  
+and requre user to have this library  
+use `externals` option
+```js
+module.exports = {
+    ...
+    externals: {
+        lodash: {
+            commonjs: "lodash",
+            commonjs2: "lodash",
+            amd: "lodash",
+            root: "_"
+        }
+    }
+    ...
+}
+```
+
+Library with several files in dependencies, like:  
+```js
+import A from "library/one"
+import B from "library/two"
+```
+should be externalized by each file, or with regular expression
+```js
+...
+externals: [
+    "library/one",
+    "library/two",
+    // or everything that starts with library/
+    /^library\/.+$/
+```
+
+To expose css associated with library,  
+use `MiniCssExtractPlugin`
