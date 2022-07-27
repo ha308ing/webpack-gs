@@ -158,3 +158,29 @@ preload is loading in parallel to parent chunk | prefetch loads after parent chu
 preloaded chunk has medium priority and instantly downloading | prefetched chunk donwloads when browser is idle
 preloaded chunk should be instantly requested by the parent | prefetched chunk can be used anytime in future
 `<link rel="preload" href="login-modal-chunk.js">` | `<link rel="prefetch" href="login-modal-chunk.js">`
+
+---
+
+# Caching
+
+Ouput filename substitutions:
+- `[contenthash]` - add hash based on asset content
+
+Extract 3rd-party libraries ( react, lodash ) to separate vendor chunk
+
+```js
+...
+optimization: {
+    moduleIds: "deterministic",
+    splitChunks: {
+        cacheGroups: {
+            vendor: {
+                test: /[\\/]node_modules[\\/]/,
+                name: "vendors",
+                chunks: "all"
+            }
+        }
+    }
+}
+...
+```
