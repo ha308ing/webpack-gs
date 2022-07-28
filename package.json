@@ -25,6 +25,7 @@
     "webpack-cli": "^4.10.0",
     "webpack-dev-middleware": "^5.3.3",
     "webpack-dev-server": "^4.9.3",
+    "webpack-merge": "^5.8.0",
     "xml-loader": "^1.2.1",
     "yamljs": "^0.3.0"
   },
