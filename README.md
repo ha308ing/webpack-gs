@@ -599,4 +599,39 @@ CommonJs Syntax is not available: `require`, `module`, `exports`, `__filename`, 
 
 HMR can be used with `import.meta.webpackHot` instead of `module.hot`.
 
+---
 
+# Shimming
+Shimming is used when you need provide something as global, e.g.  
+when library needs globals,  
+for polyfills ( to add to specific browser functionality )
+
+Polyfills/shims must be imported first  
+and run before all other code:
+- load synchronously or
+- load all code after polyfills/shims are loaded
+Best practice is to load unconditionally & synchronously
+
+1. import polyfills in entry code
+2. add polyfills in entry configuration
+
+Use `babel-preset-env` with `browserlist` to transpile according target browsers.  
+The preset comes with [useBuiltIns] option, `false` by default,  
+that will tranform `babel-polyfill` import to granular feature by feature `import` pattern.
+
+Node built-ins are confirured through webpack configuration `node` option
+
+`imports-loader` - to update context  
+`exports-loader` - to add module globals
+`ProvidePlugin` - to add package to global where needed, use certain methods
+
+`require.resolve`
+`module.noParse` config option - include module without parsing or resolving `require`, `import` statements. Also used to improve build performance.  
+Any feature requiring AST, like `ProvidePlugin` will not work.
+
+For packages with multiple module styles: combination of AMD, CommonJS and legacy,  
+force `commonjs` path by setting `additionalCode=var%20define%20=%20false;`
+via `imports-loader`
+
+
+[useBuiltIns]:https://babeljs.io/docs/en/babel-preset-env#usebuiltins

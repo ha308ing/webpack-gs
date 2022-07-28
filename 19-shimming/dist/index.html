@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Shimming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    // load polyfills conditionally
+    const modernBrowser = 'fetch' in window && 'assign' in Object;
+
+    if ( !modernBrowser ) {
+      const scriptElement = document.createElement( 'script' );
+      scriptElement.async = false;
+      scriptElement.src = '/polyfills.bundle.js';
+      document.head.appendChild( scriptElement );
+    }
+  </script>
+</head>
+
+<body>
+  <script defer src="thisWindow.bundle.js"></script>
+  <script defer src="index.bundle.js"></script>
+</body>
+
+</html>
