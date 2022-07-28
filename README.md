@@ -482,3 +482,50 @@ To take advantage from tree shaking
 - dont't let compilers transfrom ESM syntax to CommonJS ( i.e. babel [link](https://babeljs.io/docs/en/babel-preset-env#modules))
 - add `sideEffects` property to `package.json`
 - use production mode to utilize minification and tree shaking
+
+---
+
+# Production
+Write separate webpack configurations for each environment/mode  
+To keep config DRY use config with common options.  
+To merge configurations use `webpack-merge` package
+
+in common:
+```js
+module.exports = {<common options>}
+```
+
+in dev:
+```js
+const { merge } = require( "webpack-merge" )
+const common = require( "./common.js" )
+
+module.exports = merge( common, { <dev options> } )
+```
+
+in prod:
+```js
+const { merge } = require( "webpack-merge" )
+const common = require( "./common.js" )
+
+module.exports = merge( common, { <prod options> } )
+```
+
+`mode` option automatically configures `DefinePlugin`
+
+Production mode loads `TerserPlugin` by default,  
+does tree shaking and minimization.  
+`ClosureWebpackPlugin` also does minification.  
+If use other minificatoin plugin makes sure  
+it does tree shaking.  
+Minification plugins configured through `optimization.minimizer`.
+
+This will not work:  
+`process.env.NODE_ENV === 'production' ? '[name].[contenthash].bundle.js' : '[name].bundle.js'`
+> NODE_ENV is set in the compiled code, not in the webpack.config.js file
+
+[link](https://github.com/webpack/webpack/issues/2537)
+
+CLI arguments  
+`--optimization-minimize`
+`--mode "production"`
