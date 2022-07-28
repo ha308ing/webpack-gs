@@ -529,3 +529,16 @@ This will not work:
 CLI arguments  
 `--optimization-minimize`
 `--mode "production"`
+
+---
+
+# Lazy Loading
+Do dynamic import of specific modules when user interacts:
+```js
+button.onclick = e =>
+    import( /* webpackChunkName: "print" */ "./print.js" ).
+    then( module => {
+        const print = module.default
+        print()
+    } )
+```
