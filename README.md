@@ -542,3 +542,61 @@ button.onclick = e =>
         print()
     } )
 ```
+
+---
+
+# ECMAScript Modules
+```js
+export const a = 5
+export let b = 3
+export default b
+
+export class C extends S {...}
+
+export function fn() {}
+```
+
+```js
+import d from "./module.js" // import default
+
+import { a, b } from "./module.js"
+
+import * as m from "./module.js"
+console.log( m )
+/*
+{
+    a: 5,
+    b: 3,
+    default: 3
+    c: 1
+    C: [class C]
+    fn: [function fn]
+*/
+```
+
+Set module type in `package.json`:  
+`type: {"module"|"commonjs"}`
+
+Set module type with file extension:  
+- `.mjs` - ESM
+- `.cjs` - CommonJS
+
+Setting DataURI using `text/javascript` or `application/javascript` mime type  
+will force moule type to ESM
+
+Modules as ESM also affect  
+the resolving logic,  
+interop logic  
+and the available symbols in modules
+
+Relative request must include filename and extension:  
+`import "./module.js"` or `import "./module.mjs"`  
+can be disabled in webpack: `module.fullySpecified=false`
+
+Only the "default" export can be imported from non-ESM. Named exports are not available
+
+CommonJs Syntax is not available: `require`, `module`, `exports`, `__filename`, `__dirname`.
+
+HMR can be used with `import.meta.webpackHot` instead of `module.hot`.
+
+
