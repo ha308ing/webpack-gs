@@ -793,5 +793,17 @@ output: {
 },
 ```
 
+---
+
+# Integrations
+Webpack is bundler, which prepare assets for deplayment, split code, minimize, lazy-load. Other bunders: Browserify, Brunch  
+Task runners for automating tasks: linting, building, testing. Grunt, Gulp, Make.  
+Each can overlap.
+
+1. use npm scripts as task runner for webpack
+2. grunt: `grunt-webpack`
+3. gulp: `webpack-stream`
+4. mocha: `mocha-webpack`
+5. karma: `karma-webpack`
 
 [useBuiltIns]:https://babeljs.io/docs/en/babel-preset-env#usebuiltins
