@@ -690,5 +690,20 @@ declare module "*.svg" {
 }
 ```
 
+---
+
+# Web Workers
+since wepback 5 web workers supported without `worker-loader`
+
+`new Worker( new URL( "./worker.js", import.meta.url ) )`
+
+In Node:
+```js
+import { Worker } from 'worker_threads';
+new Worker(new URL('./worker.js', import.meta.url));
+```
+
+`Worker` supported only on `ESM` module type
+
 
 [useBuiltIns]:https://babeljs.io/docs/en/babel-preset-env#usebuiltins
