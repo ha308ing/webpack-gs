@@ -744,5 +744,54 @@ if ('serviceWorker' in navigator) {
 
 If broser supports web workers, app will keep working after server has stopped.
 
+---
+
+# Public Path
+base path for all assets within app
+
+`output.path` is referenced from `output.publicPath` location
+
+## Set `publicPath`
+### Environment variable
+```js
+const ASSET_PATH = process.env.ASSET_PATH || '/';
+
+export default {
+    ...
+    output: {
+        publicPath: ASSET_PATH
+    },
+    plugins: [
+        // This makes it possible for us to safely use env vars on our code
+        new webpack.DefinePlugin( {
+            "process.env.ASSET_PATH": JSON.stringify( ASSET_PATH )
+        } )
+    ]
+    ...
+```
+
+### Global variable
+Webpack exposes a global variable `__webpack_public_path__`:  
+do assignment before code (import code after assignment )
+```js
+// public-path.js
+__webpack_public_path__ = process.env.ASSET_PATH
+```
+
+```js
+// entry.js
+import './public-path';
+import './app';
+```
+
+### Automatic
+Webpack determines the public path from variables like import.meta.url, document.currentScript, script.src or self.location.  
+`document.currentScript` is require polyfill for IE
+```js
+output: {
+    publicPath: 'auto',
+},
+```
+
 
 [useBuiltIns]:https://babeljs.io/docs/en/babel-preset-env#usebuiltins
