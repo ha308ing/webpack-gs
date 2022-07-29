@@ -28,6 +28,10 @@
 - add script to `package.json`:  
     `"start": "webpack serve"`
 
+Webpack DevServer writes in memory by default,  
+to serve files from direcory,  
+enable `devserverdevmiddleware.writeToDisk`
+
 ---
 
 ## webpack-dev-middleware
@@ -704,6 +708,41 @@ new Worker(new URL('./worker.js', import.meta.url));
 ```
 
 `Worker` supported only on `ESM` module type
+
+---
+
+# Progressive Web Applications
+web apps that deliver an experience similar to native applications  
+Service Workers technology is used.
+
+add `workbox-webpack-plugin`
+```js
+const WorkboxPlugin = require('workbox-webpack-plugin');
+...
+plugins: [
+    ...
+    new WorkboxPlugin( { clientsClaim: true, skipWaiting: true } )
+    ...
+]
+...
+```
+
+register service worker in `index.js`:
+```js
+...
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').then(registration => {
+            console.log('SW registered: ', registration);
+        }).catch(registrationError => {
+            console.log('SW registration failed: ', registrationError);
+        });
+    });
+}
+...
+```
+
+If broser supports web workers, app will keep working after server has stopped.
 
 
 [useBuiltIns]:https://babeljs.io/docs/en/babel-preset-env#usebuiltins
