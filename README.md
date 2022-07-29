@@ -633,5 +633,62 @@ For packages with multiple module styles: combination of AMD, CommonJS and legac
 force `commonjs` path by setting `additionalCode=var%20define%20=%20false;`
 via `imports-loader`
 
+---
+
+# TypeScript
+use `ts-loader`:
+```js
+...
+module: {
+    rules: [
+        {
+            test: /\.tsx?/,
+            exclude: /node_modules/,
+            use: "ts-loader"
+        }
+    ]
+},
+resolve: {
+    extensions: [ ".tsx", ".ts", ".js" ]
+}
+...
+```
+
+`tsconfig.json` module type must be `es6`  
+to support tree shaking:
+```js
+{
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "noImplicitAny": true,
+    "module": "es6",
+    "target": "es5",
+    "jsx": "react",
+    "allowJs": true,
+    "moduleResolution": "node"
+  }
+}
+```
+
+If no default export use: `import * as _ from "lodash"`  
+To keep syntax `imoprt _ from "lodash"` modify `tsconfig`:
+```json
+...
+"allowSyntheticDefaultImports" : true
+"esModuleInterop" : true
+...
+```
+
+You can use `@babel/preset-typescript` with `babel-loader`,  
+but without type checking
+
+To define types for non-code assets add `custom.d.ts`:
+```js
+declare module "*.svg" {
+    const content: any
+    export default content
+}
+```
+
 
 [useBuiltIns]:https://babeljs.io/docs/en/babel-preset-env#usebuiltins
