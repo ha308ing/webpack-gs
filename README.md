@@ -806,4 +806,205 @@ Each can overlap.
 4. mocha: `mocha-webpack`
 5. karma: `karma-webpack`
 
+---
+
+# Asset Modules
+types:  
+- `asset/resource` - emits a separate file and exports the URL
+- `asset-inline` - exports a data URI of the asset
+- `asset/source` - exports the source code of the asset
+- `asset` - automatically chooses between exporting a data URI and emitting a separate file
+
+When using old loaders (`file-loader`, `url-loader`, `raw-loader`)  
+and Asset Module, to prevent asset duplication,  
+set asset's module type `javascript/auto`:
+```js
+...
+{ test: ..., use: ..., type: "javascript/auto" }
+...
+```
+
+To exclude assets that came from new URL calls from the asset loaders add `dependency: { not: ["url"] }`:
+```js
+...
+rules: [ { test: ..., use: ..., dependency: { not: ["url"] } } ]
+...
+```
+
+Modify asset naming template (and output path) through option `output.assetModuleFilename`,  
+by default `asset/resource` modules are emitting `[hash][ext][query]`
+```js
+...
+output: {
+    filename: ...,
+    path: ...
+    assetModuleFilename: "images/[hash][ext][query]"
+}
+...
+```
+
+Specific output path for certain type of assets  
+with `module.Rule.generator.filename`:
+```js
+...
+module: { rules: [
+    {
+        test: /\.html/,
+        type: "asset/resource",
+
+        // all html files will be emitted into a 'static' directory
+        generator: {
+            filename: "static/[hash][ext][query]"
+        }
+    } ] }
+...
+```
+`module.Rule.generator.filename` is the same as `output.assetModuleFilename`  
+and works only with `asset` and `asset/resource` module types.
+
+
+## Inline assets
+Asset files will be injected as data URI
+```js
+...
+rules: [
+    {
+        test: /\.svg/,
+        type: "asset/inline"
+    } ]
+...
+```
+
+in `index.js`:
+```js
+import svg from "./images/image.svg"
+
+block.style.background = `url(${svg})` // url(data:image/svg+xml;base64,...)
+```
+
+### Custom Data URI Generator
+By default, webpack represents emitted URI with Base64.  
+But custom function to encode can be specified  
+through `generator`:  
+```js
+const svgToMiniDataURI = require( "mini-svg-data-uri" )
+
+module.exports = {
+    ...
+    module: {
+        ...
+        rules: [
+            {
+                test: /\.svg/,
+                type: "asset/inline",
+
+                // all svg files will be encoded by mini-svg-data-uri
+                generator: {
+                    dataUrl: content => {
+                        content = content.toString();
+                        return svgToMiniDataURI( content )
+                    }
+                }
+            }
+        ]
+    }
+}
+```
+
+## Source assets
+`webpack.config.js`:
+```js
+...
+module: { rules: [
+    {
+        // asll txt files will be injected as is
+        test: /\.txt/,
+        type: "asset/source"
+    }
+] }
+```
+
+`index.js`:
+```js
+import text from "./example.txt" // : "hello"
+
+block.textContent = text // "hello"
+```
+
+## URL Assets
+When using `new URL( "./path/to/asset", import.meta.url )`,  
+webpack creates an asset module  
+depending on `target` option in configuration:
+```js
+// target: web
+new URL(
+    __webpack_public_path__ + "logo.svg",
+    document.baseURI || self.location.href
+);
+
+// target: webworker
+new URL( __webpack_public_path__ + "logo.svg", self.location )
+
+// target: node, node-webkit, nwjs, electron-main,
+// electron-renderer, electron-preload, async-node
+new URL(
+    __webpack_public_path__ + "logo.svg",
+    require( "url" ).pathToFileUrl( __filename )
+);
+```
+
+From webpack 5.38.0 Data URL are supported in `new URL()`  
+in `index.js`:
+```js
+const url = new URL( "data:,", import.meta.url)
+console.log( url.href === "data:," )
+console.log( url.protocol === "data:" )
+console.log( url.pathname === "," )
+```
+
+## General Asset Type
+To let webpack automatically choose between `resource` and `inline`.  
+`inline` < `Rule.parser.dataUrlCondition.maxSize` = 8 < `resource`  
+also `Rule.parser.dataUrlCondition` option can accept function for decision
+```js
+test: /\.txt/,
+type: "asset",
+parser: {
+    dataUrlCondition: {
+        // if txt < 4kb - inline
+        // else resource
+        maxSize: 4 * 1024 // 4kb
+    }
+}
+```
+
+## Inline Loader Syntax
+```js
+// add resource query: raw
+import myModule from "my-module?raw
+```
+
+Now is recommended use `resourceQuery` condition:
+```js
+module: { rules: [
+    ...
+    {
+        // load assets with resource query raw
+        // as is
+        resourceQuery: /raw/,
+        type: "asset/source",
+    },
+    {
+        test: /\.m?js$/,
+
+        // negative condition to exclude resource query
+        // from being processed by other loaders
+        resourceQuery: { not: [/raw/] },
+        use: [ ... ]
+    },
+] }
+```
+
+
+
 [useBuiltIns]:https://babeljs.io/docs/en/babel-preset-env#usebuiltins
